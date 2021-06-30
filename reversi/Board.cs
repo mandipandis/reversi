@@ -6,6 +6,17 @@ using System.Threading.Tasks;
 
 namespace reversi
 {
+    struct Position
+    {
+        public int x;
+        public int y;
+
+        public Position(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
     class Board
     {
         char[,] board = new char[8, 8];
@@ -25,11 +36,11 @@ namespace reversi
                     board[x, y] = '-';
                 }
             }
-
             setTile(3, 3, 'o');
             setTile(4, 3, 'x');
             setTile(4, 4, 'o');
             setTile(3, 4, 'x');
+           
         }
 
         public void print()
@@ -54,7 +65,7 @@ namespace reversi
             Console.WriteLine("Antal 'x': " + tileCount('x'));
         }
 
-        private void setTile(int x, int y, char tile)
+        public void setTile(int x, int y, char tile)
         {
             board[x, y] = tile;
         }
@@ -75,5 +86,75 @@ namespace reversi
             }
             return tiles;
         }
-    }
+        private bool isOnBoard(int x, int y)
+        {
+            return x > -1 && x < 8 && y > -1 && y < 8;
+        }
+        public List<Position> flippedTiles(int x, int y, char tile)
+        {
+            //ska ge vilka rutor som ska flippas, men ska inte flippa
+            //kollar om på board
+            //kollar 8an runt
+
+            //om finns granne som har annan färg- true
+
+            List<Position> directions = new List<Position>();
+
+            directions.Add(new Position(1, 1));
+            directions.Add(new Position(1, 0));
+            directions.Add(new Position(1, -1));
+            directions.Add(new Position(-1, -1));
+            directions.Add(new Position(-1, 0));
+            directions.Add(new Position(-1, 1));
+            directions.Add(new Position(0, -1));
+            directions.Add(new Position(0, 1));
+
+            char otherTile = '-';
+            if (tile == 'x')
+            {
+                otherTile = 'o';
+            }
+            else if (tile == 'o')
+            {
+                otherTile = 'x';
+            }
+
+            List<Position> tilesToFlip = new List<Position>();
+
+            foreach (var direction in directions)
+            {
+                int curX = x + direction.x;
+                int curY = y + direction.y;
+
+                if (isOnBoard(curX, curY))
+                {
+                    while (board[curX, curY] == otherTile)
+                    {
+                        //direction i den riktning ska öka ett steg,
+                        curX += direction.x;
+                        curY += direction.y;
+                        
+                        //kolla om det är annann eller samma som "tile" är
+                        if (isOnBoard(curX, curY) && board[curX, curY] == tile)
+                        {
+                            while (true)
+                            {
+                                curX -= direction.x;
+                                curY -= direction.y;
+                                if (curX == x && curY == y)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    tilesToFlip.Add(new Position(curX, curY));
+                                }
+                            }
+                        }
+                    }     
+                }
+            }
+            return tilesToFlip;
+        }
+    } 
 }
