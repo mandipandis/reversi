@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace reversi
 {
@@ -6,7 +7,10 @@ namespace reversi
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+
+            Board board = new Board();
+
+            board.print();
         }
     }
 }
