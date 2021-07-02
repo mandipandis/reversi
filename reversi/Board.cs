@@ -214,7 +214,19 @@ namespace reversi
         public double value(char tile)
         {
             char otherTile = tile == black ? white : black;
-            return tileCount(tile) * 1.5 - tileCount(otherTile);
+            var valueTile = tileCount(tile) * 1.5;
+            var valueOtherTile = tileCount(otherTile);
+
+            Position[] corners = new Position[] { new Position(0, 0), new Position(7, 0), new Position(0, 7), new Position(7, 7) };
+            foreach (var corner in corners)
+            {
+                if(board[corner.x, corner.y] == tile)
+                {
+                    valueTile += 5;
+                }
+            }
+            
+            return valueTile - valueOtherTile;
         }
 
         public Board clone()
