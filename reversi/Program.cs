@@ -7,70 +7,85 @@ namespace reversi
     {
         static void Main(string[] args)
         {
-
             Board board = new Board();
 
             Console.Write("Welcome to Reversi!\nChoose 'x' or 'o': ");
-            char coise = Console.ReadLine()[0];
+            char choise = Console.ReadLine()[0];
 
             char tile = '-';
-            //char otherTile = '-';
             bool goOn = true;
             while (goOn)
             {
-                if (coise == 'x')
+                if (choise == Board.black || choise == Board.white)
                 {
-                    Console.WriteLine("You are playing as 'x'!");
-                    tile = 'x';
-                    //otherTile = 'o';
-                    goOn = false;
-                }
-                else if (coise == 'o')
-                {
-                    Console.WriteLine("You are playing as 'o'!");
-                    tile = 'o';
-                    //otherTile = 'x'; 
+                    tile = choise;
                     goOn = false;
                 }
                 else
                 {
                     Console.Write("Unapproved value.\nChoose 'x' or 'o': ");
-                    coise = Console.ReadLine()[0];
+                    choise = Console.ReadLine()[0];
                 }
             }
 
+            Console.WriteLine("You are playing as {0}!", tile);
             Console.WriteLine("You start!");
-            Console.WriteLine("Board: \n");
             board.print();
 
+            char otherTile = tile == Board.black ? Board.white : Board.black;
             int posX = 0;
             int posY = 0;
             goOn = true;
+            bool stay = true;
             while (goOn)
             {
-                Console.Write("Select an X cordinate: ");
-                posX = int.Parse(Console.ReadLine());
-                posX -= 1;
-                Console.Write("Select a Y cordinate: ");
-                posY = int.Parse(Console.ReadLine());
-                posY -= 1;
-                //Kolla om innom directions
-                var positions = board.flippedTiles(posX, posY, tile);
-                if (positions.Count > 0)
+                while (stay)
                 {
-                    board.setTile(posX, posY, tile);
-                    foreach (var pos in positions)
+                    Console.Write("\nSelect an X cordinate: ");
+                    posX = int.Parse(Console.ReadLine());
+                    posX -= 1;
+                    Console.Write("Select a Y cordinate: ");
+                    posY = int.Parse(Console.ReadLine());
+                    posY -= 1;
+                    var positions = board.flippedTiles(posX, posY, tile);
+                    if (positions.Count > 0)
                     {
-                        board.setTile(pos.x, pos.y, tile);
+                        board.setTiles(positions, tile);
+                        stay = false;
                     }
-                    goOn = false;
+                    else
+                    {
+                        Console.WriteLine("Unapproved move, make a new one");
+                    }
+                }
+               
+                board.print();
+
+                var move = board.bestMove(otherTile);
+                if(move.HasValue)
+                {
+                    var flipped = board.flippedTiles(move.Value.x, move.Value.y, otherTile);
+                    board.setTiles(flipped, otherTile);
+                    Console.WriteLine("Computer moved to X: {0} and Y: {1}", move.Value.x + 1, move.Value.y + 1);
+                    stay = true;
                 }
                 else
                 {
-                    Console.WriteLine("Unapproved move, make a new one");
+                    var tiles = board.tileCount(tile);
+                    var otherTiles = board.tileCount(otherTile);
+                    if(tiles > otherTiles)
+                    {
+                        Console.WriteLine("You won!");
+                        goOn = false;
+                    }
+                    else if(otherTiles > tiles)
+                    {
+                        Console.WriteLine("You lost!");
+                        goOn = false;
+                    }
                 }
-            }                
-            board.print();
+                board.print();
+            }
         }
     }
 }
